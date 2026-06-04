@@ -14,7 +14,7 @@ mkdir -p "$DATA_DIR"
 if [[ $# -gt 0 ]]; then
     SEASONS=("$@")
 else
-    SEASONS=(1920 2021 2122 2223 2324 2425)
+    SEASONS=(1920 2021 2122 2223 2324 2425 2526)
 fi
 
 for CODE in "${SEASONS[@]}"; do

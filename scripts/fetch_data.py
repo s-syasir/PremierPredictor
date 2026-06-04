@@ -97,6 +97,35 @@ def fetch_current_season():
     url = f"https://www.football-data.co.uk/mmz4281/{code}/E0.csv"
     print(f"  Fetching FD {label} ...", end=" ", flush=True)
     r = requests.get(url, timeout=30)
+    if r.status_code == 404:
+        # Off-season: new season hasn't started yet. Use the completed previous season
+        # as training data so the notebook can still run and predict the full upcoming season.
+        prev_code  = f"{int(code[:2])-1:02d}{int(code[2:])-1:02d}"
+        prev_label = f"20{prev_code[:2]}-{prev_code[2:]}"
+        prev_path  = DATA_DIR / f"E0_{prev_code}.csv"
+        if prev_path.exists():
+            df = pd.read_csv(prev_path, encoding="latin1", on_bad_lines="skip").copy()
+            df["Season"] = prev_label
+            df["Date"]   = pd.to_datetime(df["Date"], dayfirst=True, errors="coerce")
+            df = df.dropna(subset=["Date", "HomeTeam", "AwayTeam", "FTHG", "FTAG"])
+            df = df.sort_values("Date").reset_index(drop=True)
+            df.to_csv(DATA_DIR / "current_season.csv", index=False)
+            print(f"off-season — loaded completed {prev_label} ({len(df)} matches) as training data")
+            # Mirror the previous season's xG file
+            prev_xg = DATA_DIR / f"understat_matches_{prev_label}.csv"
+            if prev_xg.exists():
+                import shutil as _sh
+                _sh.copy(prev_xg, DATA_DIR / "understat_current_season.csv")
+        else:
+            print(f"not available yet (season hasn't started and no previous-season archive found)")
+            df = pd.DataFrame(columns=["Date", "HomeTeam", "AwayTeam", "FTHG", "FTAG", "FTR", "Season"])
+            df.to_csv(DATA_DIR / "current_season.csv", index=False)
+            pd.DataFrame(columns=["date","home_team","away_team","home_goals","away_goals",
+                                   "home_xg","away_xg","home_win_prob","draw_prob","away_win_prob",
+                                   "understat_id","season"]).to_csv(
+                DATA_DIR / "understat_current_season.csv", index=False)
+        _write_meta(label, code)
+        return df, pd.DataFrame()
     r.raise_for_status()
 
     raw_path = DATA_DIR / f"E0_{code}.csv"
@@ -154,7 +183,7 @@ def fetch_current_season():
         champ_path = DATA_DIR / f"E1_{code}.csv"
         champ_path.write_bytes(r3.content)
         cdf = pd.read_csv(champ_path, encoding="latin1", on_bad_lines="skip")
-        cdf["Date"] = pd.to_datetime(cdf["Date"], errors="coerce")
+        cdf["Date"] = pd.to_datetime(cdf["Date"], dayfirst=True, errors="coerce")
         cdf = cdf.dropna(subset=["Date", "HomeTeam", "AwayTeam", "FTHG", "FTAG"])
         cdf["FTHG"] = cdf["FTHG"].astype(int)
         cdf["FTAG"]  = cdf["FTAG"].astype(int)
@@ -191,6 +220,7 @@ SEASONS = {
     "2022-23": "2223",
     "2023-24": "2324",
     "2024-25": "2425",
+    "2025-26": "2526",
 }
 
 def fetch_fd_seasons():
@@ -268,7 +298,7 @@ def compute_form_and_standings(matches: pd.DataFrame, form_window: int = 5) -> p
 
 # ── 3 · Understat xG ─────────────────────────────────────────────────────────
 
-UNDERSTAT_YEARS = [2019, 2020, 2021, 2022, 2023, 2024]
+UNDERSTAT_YEARS = [2019, 2020, 2021, 2022, 2023, 2024, 2025]
 
 TEAM_MAP = {
     "Manchester United":      "Man United",
@@ -474,7 +504,7 @@ def fetch_championship_season(season_code: str = _CURR_CODE) -> pd.DataFrame:
         print(f"  Championship {season_code} already cached")
 
     df = pd.read_csv(path, encoding="latin1", on_bad_lines="skip")
-    df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
+    df["Date"] = pd.to_datetime(df["Date"], dayfirst=True, errors="coerce")
     df = df.dropna(subset=["Date", "HomeTeam", "AwayTeam", "FTHG", "FTAG"])
     df["FTHG"] = df["FTHG"].astype(int)
     df["FTAG"]  = df["FTAG"].astype(int)

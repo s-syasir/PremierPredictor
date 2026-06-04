@@ -37,7 +37,8 @@ from pathlib import Path
 sys.path.insert(0, 'scripts')
 DATA = Path('data')
 SEASONS = {'2019-20':'1920','2020-21':'2021','2021-22':'2122',
-           '2022-23':'2223','2023-24':'2324','2024-25':'2425'}
+           '2022-23':'2223','2023-24':'2324','2024-25':'2425',
+           '2025-26':'2526'}
 frames = []
 for label, code in SEASONS.items():
     df = pd.read_csv(DATA/f'E0_{code}.csv', encoding='latin1', on_bad_lines='skip')
