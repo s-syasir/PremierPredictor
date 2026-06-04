@@ -123,17 +123,29 @@ simulates the uncertainty in the remaining games.
 
 ## Outputs
 
-All charts saved to `notebook_outputs/`:
+All charts save automatically to `notebook_outputs/` when you run the notebook.
 
-| Chart | What it shows |
-|-------|---------------|
-| `odds_chart.png` | Title / Top-4 / Relegation probabilities for all 20 teams |
-| `points_dist.png` | Simulated final points distributions for the top 6 |
-| `feature_importance.png` | Dixon–Coles attack & defence rankings |
-| `elo_trajectories.png` | Elo rating curves across the full 2025-26 season so far |
-| `elo_ratings.png` | Current Elo standings, coloured by league zone |
-| `attack_defence.png` | Attack vs defence scatter for all 20 teams |
-| `bookie_scatter.png` | Model win probabilities vs devigged Bet365 odds |
+#### Season projections
+
+![odds_chart](notebook_outputs/odds_chart.png)
+
+![points_dist](notebook_outputs/points_dist.png)
+
+#### Model parameters
+
+![feature_importance](notebook_outputs/feature_importance.png)
+
+![attack_defence](notebook_outputs/attack_defence.png)
+
+#### Elo ratings
+
+![elo_ratings](notebook_outputs/elo_ratings.png)
+
+![elo_trajectories](notebook_outputs/elo_trajectories.png)
+
+#### Bookmaker calibration
+
+![bookie_scatter](notebook_outputs/bookie_scatter.png)
 
 ---
 
