@@ -16,6 +16,10 @@ __pycache__/
 # Jupyter
 .ipynb_checkpoints/
 
+# Internal notes — not for public repo
+TODOS.md
+Docs.MD
+
 # OS
 .DS_Store
 Thumbs.db
